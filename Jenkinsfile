@@ -16,11 +16,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Use 'docker build' with the correct context (e.g., the current directory)
+                    // Use 'docker build' with the correct context (the current directory)
                     powershell 'docker build -t $DOCKER_IMAGE .'
                 }
             }
         }
+
 
         stage('Login to Docker Hub') {
             steps {
