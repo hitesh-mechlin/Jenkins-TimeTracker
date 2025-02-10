@@ -3,13 +3,13 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS = credentials('dockerhub-credentials')  // Jenkins credential id
-        DOCKER_IMAGE = "hiteshmechlin/timetracker:tagone"  // Updated Docker Hub repository and tag
+        DOCKER_IMAGE = "hiteshmechlin/timetracker:tagone"  // Docker Hub repository and tag
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'master', url: 'https://github.com/hitesh-mechlin/Jenkins-TimeTracker.git'  // Updated GitHub URL
+                git branch: 'master', url: 'https://github.com/hitesh-mechlin/Jenkins-TimeTracker.git'
             }
         }
 
@@ -43,8 +43,10 @@ pipeline {
 
     post {
         always {
-            // Clean up after build
-            cleanWs()
+            // Ensure that cleanWs is within a node block
+            node {
+                cleanWs()
+            }
         }
     }
 }
