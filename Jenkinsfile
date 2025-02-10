@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code from GitHub
-                    git credentialsId: "${GITHUB_CREDENTIALS}", url: 'https://github.com/yourusername/yourrepo.git', branch: 'main'
+                    git credentialsId: "${GITHUB_CREDENTIALS}", url: 'https://github.com/yourusername/yourrepo.git', branch: 'master'
                 }
             }
         }
