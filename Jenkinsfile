@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     // Checkout code from GitHub
-                    git credentialsId: "${GITHUB_CREDENTIALS}", url: 'https://github.com/yourusername/yourrepo.git', branch: 'master'
+                    git credentialsId: "${GITHUB_CREDENTIALS}", url: 'https://github.com/hitesh-mechlin/Jenkins-TimeTracker.git', branch: 'master'
                 }
             }
         }
