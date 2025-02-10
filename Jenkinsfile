@@ -8,6 +8,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
+                // Cloning the Git repository from GitHub
                 git branch: 'master', url: 'https://github.com/hitesh-mechlin/Jenkins-TimeTracker.git'
             }
         }
@@ -21,13 +22,17 @@ pipeline {
             }
         }
 
-
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'c68c6356-f22b-44ee-88ed-35cd9f8aade5', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        // Docker login using credentials from Jenkins
-                        powershell "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    // Docker Hub credentials used for login
+                    withCredentials([usernamePassword(credentialsId: 'c68c6356-f22b-44ee-88ed-35cd9f8aade5', 
+                                                      usernameVariable: 'DOCKER_USERNAME', 
+                                                      passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Login to Docker Hub using the credentials
+                        powershell """
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                        """
                     }
                 }
             }
@@ -36,7 +41,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push Docker image to Docker Hub
+                    // Push the built Docker image to Docker Hub
                     powershell "docker push $DOCKER_IMAGE"
                 }
             }
@@ -45,9 +50,8 @@ pipeline {
 
     post {
         always {
-            node('built-in') {
-                cleanWs() // Clean workspace after the pipeline finishes
-            }
+            // Cleanup workspace after pipeline finishes, ensuring no leftover files
+            cleanWs()
         }
     }
 }
