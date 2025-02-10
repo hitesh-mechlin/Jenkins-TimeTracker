@@ -16,7 +16,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t $DOCKER_IMAGE .'
+                    powershell 'docker build -t $DOCKER_IMAGE .'
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
+                    powershell "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
                 }
             }
         }
@@ -32,7 +32,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    sh "docker push $DOCKER_IMAGE"
+                    powershell "docker push $DOCKER_IMAGE"
                 }
             }
         }
