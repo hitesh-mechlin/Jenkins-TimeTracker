@@ -13,13 +13,14 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            steps {
-                script {
-                    // Build Docker image with the specified tag
-                    powershell 'docker build -t $DOCKER_IMAGE .'
-                }
+        steps {
+            script {
+                // Ensure you are using docker build (not buildx) with the correct context
+                powershell 'docker build -t $DOCKER_IMAGE .'
             }
         }
+    }
+
 
         stage('Login to Docker Hub') {
             steps {
