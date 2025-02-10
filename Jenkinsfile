@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS = credentials('c68c6356-f22b-44ee-88ed-35cd9f8aade5')  // Updated credentials ID
         DOCKER_IMAGE = "hiteshmechlin/timetracker:tagone"
     }
 
@@ -16,6 +15,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build Docker image with the specified tag
                     powershell 'docker build -t $DOCKER_IMAGE .'
                 }
             }
@@ -24,7 +24,10 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 script {
-                    powershell "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
+                    withCredentials([usernamePassword(credentialsId: 'c68c6356-f22b-44ee-88ed-35cd9f8aade5', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        // Docker login using credentials from Jenkins
+                        powershell "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    }
                 }
             }
         }
@@ -32,6 +35,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
+                    // Push Docker image to Docker Hub
                     powershell "docker push $DOCKER_IMAGE"
                 }
             }
@@ -41,7 +45,7 @@ pipeline {
     post {
         always {
             node('built-in') {
-                cleanWs()
+                cleanWs() // Clean workspace after the pipeline finishes
             }
         }
     }
