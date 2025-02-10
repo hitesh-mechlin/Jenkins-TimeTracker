@@ -2,39 +2,27 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "hiteshmechlin/timetracker:tagone"
+        // Define the Docker Hub repository and credentials
+        DOCKER_REPO = "hiteshmechlin/timetracker"
+        DOCKER_CREDENTIALS = "c68c6356-f22b-44ee-88ed-35cd9f8aade5"
+        GITHUB_CREDENTIALS = "06073c04-ce3d-4b27-92a9-0d7932860dec"
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                // Cloning the Git repository from GitHub
-                git branch: 'master', url: 'https://github.com/hitesh-mechlin/Jenkins-TimeTracker.git'
+                script {
+                    // Checkout code from GitHub
+                    git credentialsId: "${GITHUB_CREDENTIALS}", url: 'https://github.com/yourusername/yourrepo.git', branch: 'main'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Use 'docker build' with the correct context (the current directory)
-                    powershell 'docker build -t $DOCKER_IMAGE .'
-                }
-            }
-        }
-
-
-        stage('Login to Docker Hub') {
-            steps {
-                script {
-                    // Docker Hub credentials used for login
-                    withCredentials([usernamePassword(credentialsId: 'c68c6356-f22b-44ee-88ed-35cd9f8aade5', 
-                                                      usernameVariable: 'DOCKER_USERNAME', 
-                                                      passwordVariable: 'DOCKER_PASSWORD')]) {
-                        // Login to Docker Hub using the credentials
-                        powershell """
-                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                        """
-                    }
+                    // Build the Docker image
+                    docker.build("${DOCKER_REPO}:${env.BUILD_ID}")
                 }
             }
         }
@@ -42,8 +30,12 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Push the built Docker image to Docker Hub
-                    powershell "docker push $DOCKER_IMAGE"
+                    // Log in to Docker Hub
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS}") {
+                        // Push the image to Docker Hub
+                        docker.image("${DOCKER_REPO}:${env.BUILD_ID}").push()
+                        docker.image("${DOCKER_REPO}:${env.BUILD_ID}").push("latest") // Optionally tag with 'latest'
+                    }
                 }
             }
         }
@@ -51,8 +43,7 @@ pipeline {
 
     post {
         always {
-            // Cleanup workspace after pipeline finishes, ensuring no leftover files
-            cleanWs()
+            cleanWs()  // Clean workspace after the build
         }
     }
 }
